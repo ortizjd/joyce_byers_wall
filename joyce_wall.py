@@ -47,12 +47,12 @@ class Wall:
         self.frame({})
 
     def flicker(self):
-        # Brief irregular bursts on a handful of letters, never full-strand white.
-        indices = list(LETTER_TO_LED.values())
+        # Brief irregular bursts across the full strand, never full-strand white.
+        indices = list(range(self.count))
         if self.dry_run:
             print("[random flicker burst]")
         for _ in range(random.randint(18, 32)):
-            lit = random.sample(indices, random.randint(1, 6))
+            lit = random.sample(indices, random.randint(len(indices) // 2, len(indices)))
             self.frame({i: tuple(int(c * random.uniform(0.25, 1)) for c in PALETTE[i % len(PALETTE)]) for i in lit})
             time.sleep(random.uniform(0.025, 0.09))
             self.clear()
@@ -67,8 +67,6 @@ class Wall:
             return
         print("Spelling:", message)
         self.clear()
-        if flicker:
-            self.flicker()
         time.sleep(0.6)
         for letter in message:
             if letter == " ":
@@ -88,6 +86,8 @@ class Wall:
             time.sleep(0.75)
             self.clear()
             time.sleep(0.35)  # Includes a visible gap between repeated letters.
+        if flicker:
+            self.flicker()
 
     def scan(self):
         for index in range(self.count):
