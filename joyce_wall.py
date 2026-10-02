@@ -14,12 +14,11 @@ from pathlib import Path
 
 WIRE_ORDER = "ABCDEFGH" + "QPONMLKJI" + "RSTUVWXYZ"
 LETTER_TO_LED = {letter: index for index, letter in enumerate(WIRE_ORDER)}
-PALETTE = [(255, 45, 10), (0, 200, 40), (30, 80, 255),
-           (255, 140, 0), (160, 15, 255)]
+PALETTE = [(255, 220, 0), (30, 80, 255), (255, 0, 0), (0, 200, 40)]
 
 
 class Wall:
-    def __init__(self, count=50, brightness=50, order="RGB", dry_run=False):
+    def __init__(self, count=50, brightness=75, order="RGB", dry_run=False):
         self.count = count
         self.dry_run = dry_run
         self.strip = None
@@ -52,7 +51,7 @@ class Wall:
         indices = list(LETTER_TO_LED.values())
         if self.dry_run:
             print("[random flicker burst]")
-        for _ in range(random.randint(10, 20)):
+        for _ in range(random.randint(18, 32)):
             lit = random.sample(indices, random.randint(1, 6))
             self.frame({i: tuple(int(c * random.uniform(0.25, 1)) for c in PALETTE[i % len(PALETTE)]) for i in lit})
             time.sleep(random.uniform(0.025, 0.09))
@@ -110,7 +109,7 @@ def main():
     parser.add_argument("message", nargs="?", help="Omit to type messages interactively")
     parser.add_argument("--dry-run", action="store_true", help="Print sequence without GPIO hardware")
     parser.add_argument("--count", type=int, default=50)
-    parser.add_argument("--brightness", type=int, default=50, help="0–255; default 50 (~20%%)")
+    parser.add_argument("--brightness", type=int, default=75, help="0–255; default 75 (~30%%)")
     parser.add_argument("--order", choices=["RGB", "RBG", "GRB", "GBR", "BRG", "BGR"], default="RGB")
     parser.add_argument("--no-flicker", action="store_true")
     parser.add_argument("--scan", action="store_true", help="Light each bulb to check its index")
