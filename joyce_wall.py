@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Interactive WS2811 alphabet wall. GPIO18 backend for Raspberry Pi 0–4.
+"""Interactive WS2811 alphabet wall for Raspberry Pi 0–4.
 
 Use --dry-run on any computer. Index 0 is the first pixel at DATA IN.
 Default physical rows: A-H, I-Q, R-Z; wire snakes left/right/left.
@@ -14,10 +14,22 @@ import time
 from pathlib import Path
 
 WIRE_ORDER = "ABCDEFGH" + "QPONMLKJI" + "RSTUVWXYZ"
-LETTER_TO_LED = {letter: index for index, letter in enumerate(WIRE_ORDER)}
+
+LETTER_TO_LED = {
+    "A": 46,  "B": 45,  "C": 43,  "D": 42,
+    "E": 41,  "F": 39,  "G": 38, "H": 36,
+    "I": 18, "J": 19, "K": 20, "L": 21,
+    "M": 23, "N": 24, "O": 26, "P": 27,
+    "Q": 28, "R": 14, "S": 13, "T": 11,
+    "U": 10, "V": 8, "W": 7, "X": 5,
+    "Y": 4, "Z": 3,
+}
+
+#LETTER_TO_LED = {letter: index for index, letter in enumerate(WIRE_ORDER)}
 PALETTE = [(255, 220, 0), (30, 80, 255), (255, 0, 0), (0, 200, 40)]
 BUZZER_PIN = 23  # BCM GPIO23; physical header pin 16.
 PIR_PIN = 24  # BCM GPIO24; physical header pin 18.
+LIGHTS_PIN = 17  # BCM GPIO17; physical header pin 11.
 CREEPY_SONG = (196, 233, 277, 349, 311, 262, 220, 294,
                196, 233, 277, 392, 349, 294, 247, 196)
 
@@ -36,11 +48,11 @@ class Wall:
             model_path = Path("/proc/device-tree/model")
             model = model_path.read_text().strip("\x00") if model_path.exists() else ""
             if "Raspberry Pi" not in model or "Pi 5" in model or "Compute Module 5" in model:
-                raise RuntimeError("This GPIO18 backend targets Pi 0–4. Use --dry-run here; Pi 5 needs a different driver setup.")
+                raise RuntimeError("This backend targets Pi 0–4. Use --dry-run here; Pi 5 needs a different driver setup.")
             from rpi_ws281x import PixelStrip, Color, ws
             import RPi.GPIO as GPIO
             self.color = Color
-            self.strip = PixelStrip(count, 18, freq_hz=800000, dma=10,
+            self.strip = PixelStrip(count, LIGHTS_PIN, freq_hz=800000, dma=10,
                                    invert=False, brightness=brightness,
                                    channel=0, strip_type=getattr(ws, "WS2811_STRIP_" + order))
             self.strip.begin()
